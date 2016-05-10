@@ -1,10 +1,3 @@
-/*
-	Author: Niggl
-	File: init.sqf
-	
-	This file starts all scripts needed for the mission
-*/
-
 call compile preProcessFile "loot\positions.sqf";
 call compile preProcessFile "loot\Waffe_Array.sqf";
 call compile preProcessFile "loot\Ammo_array.sqf";

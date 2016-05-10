@@ -1,7 +1,7 @@
 /*
 	Author: Niggl
 	
-	spawns loot (wepArrays.sqf) at cords (position.sqf) in crate.
+	spawns loot (*_Array.sqf) at cords (position.sqf) in crate.
 */
 
 //if (!isServer) exitWith {};
@@ -11,36 +11,32 @@ Niggl_lootDebug = true;					// Map Markers wo loot ist (sein sollte)
 Niggl_initialLootSpawns = 500;				// Anzahl Lootstellen
 Niggl_lootSpawnPeriod = 15;				// Zeit zwischen jeder Lootstelle
 
-// Ã„nder was ab hier und du hast spaÃŸ
+// Änder was ab hier und du hast spaß
 
 Niggl_worldCenter = (getArray (configFile >> "CfgWorlds" >> worldName >> "centerPosition"));
 
 Niggl_fnc_setLoot =
 {
-	private["_Objekt_in_das_gespawnt_wird","_random","_array_waffe","_Waffe","_Waffen_NAME","_Waffen_MAGAZIN","_modifiers","_anzahl_mags"];
+	private["_Objekt_in_das_gespawnt_wird","_random","_array_waffe","_Waffe","_Waffen_NAME","_Waffen_MAGAZIN","_modifiers","_anzahl_mags","_array_ammo","_ammo_Array","_array_Kleidung","_Kleidung","_Kleidung_ENT","_array_Backpack","_Backpack"];
 	_Objekt_in_das_gespawnt_wird = _this select 0;
+		clearWeaponCargo _Objekt_in_das_gespawnt_wird;
+		clearMagazineCargo _Objekt_in_das_gespawnt_wird;
+		clearItemCargo _Objekt_in_das_gespawnt_wird;
+		clearBackpackCargo _Objekt_in_das_gespawnt_wird;
 	_random = round (random 100);
-	_array_waffe = Niggl_commonWepArray;
-	if (_random > 60) then
-	{
-		_array_waffe = Niggl_semiCommonWepArray;
-	};
-	if (_random > 85) then
-	{
-		_array_waffe = Niggl_semiRareWepArray;
-	};
-	if (_random > 95) then
-	{
-		_array_waffe = Niggl_rareWepArray;
-	};
-	if (_random > 99) then
-	{
-		_array_waffe = Niggl_veryRareWepArray;
-	};
+	_array_waffe = Niggl_Random_Weapon_Array;
+	_array_ammo = Niggl_AmmoArray;
+	_array_Kleidung = Niggl_Cloathing_Array;
+	_array_Backpack = Niggl_Backpack_Array;
+	_Backpack = _array_Backpack select (floor (random (count _array_Backpack)));
+	_Backpack = _Backpack select 0;
+	_Kleidung = _array_Kleidung select (floor (random (count _array_Kleidung)));
+	_Kleidung_ENT = _Kleidung select 0;
+	_ammo_Array = _array_ammo select (floor (random (count _array_ammo)));
+	_Waffen_MAGAZIN = _ammo_Array select 0;
 	_Waffe = _array_waffe select (floor (random (count _array_waffe)));
 	_Waffen_NAME = _Waffe select 0;
-	_Waffen_MAGAZIN = _Waffe select 1;
-	_modifiers = _Waffe select 2;
+	_modifiers = _Waffe select 1;
 	_anzahl_mags = round ((random (_modifiers select 1)) + (_modifiers select 0));
 	if (_Waffen_NAME != "") then
 	{
@@ -49,6 +45,14 @@ Niggl_fnc_setLoot =
 	if (_Waffen_MAGAZIN != "" && _anzahl_mags > 0) then
 	{
 		_Objekt_in_das_gespawnt_wird addMagazineCargo [_Waffen_MAGAZIN, _anzahl_mags];
+	};
+	if (_Kleidung_ENT != "") then
+	{
+		_Objekt_in_das_gespawnt_wird addItemCargoGlobal [_Kleidung_ENT, 1];
+	};
+	if (_Backpack != "") then
+	{
+		_Objekt_in_das_gespawnt_wird addBackpackCargoGlobal [_Backpack, 1];
 	};
 };
 
@@ -69,6 +73,10 @@ Niggl_fnc_spawnLoot =
 	} else {
 		_wepHolder = _nearHolders select 0;
 	};
+		clearWeaponCargo _wepHolder;
+		clearMagazineCargo _wepHolder;
+		clearItemCargo _wepHolder;
+		clearBackpackCargo _wepHolder;
 	_loot = [_wepHolder] spawn Niggl_fnc_setLoot;
 	if (Niggl_lootDebug) then
 	{
